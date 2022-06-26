@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addQuestions } = require('./query.js');
+const { opening, addDept, addRole } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -8,10 +8,10 @@ const askQuestions = async (quest) => {
     return(answers.choice);
 };
 
-// const askTableQuestions = async (quest) => {
-//     const answers = await prompt(quest);
-//     return answers.table;
-// };
+const askRoleQuestions = async (quest) => {
+    const answers = await prompt(quest);
+    return answers;
+};
 
 const db = mysql.createConnection(
     {
@@ -36,7 +36,15 @@ const dbQueryAdd = (table, name) => {
     })
 };
 
-const conditionals = (answers) => {
+const dbQueryAddRole = (table, title, salary, deptId) => {
+    db.query('INSERT INTO ?? SET title = ?, salary = ?, department_id = ?', [table, title, salary, deptId], (err, results) => {
+        if (err) console.log(err);
+        console.table(results)
+        return callMysql(opening);
+    })
+};
+
+const conditionals = async (answers) => {
     if (answers === 'exit') return(process.exit());
     if (answers === 'view all departments') {
         return(dbQuery('department'));
@@ -48,9 +56,12 @@ const conditionals = (answers) => {
         return(dbQuery('employee'));
     }
     else if (answers === 'add a department') {
-        const table = askQuestions(addQuestions);
-        console.log(table);
-        // resolve(dbQueryAdd('department', table));
+        const table = await askQuestions(addDept);
+        return(dbQueryAdd('department', table));
+    }
+    else if (answers === 'add a role') {
+        const table = await askRoleQuestions(addRole);
+        return(dbQueryAddRole('role', table.title, table.salary, table.deptId));
     }
     // else process.exit();
     else console.log('not working');
@@ -63,8 +74,7 @@ const callMysql = async (quest) => {
     //     else console.log('not yet');
     // });
     // query.then(conditionals(answers)).catch(err=>console.log(err));
-    const query = conditionals(answers);
-    console.log(query);
+    const query = await conditionals(answers);
 };
 
 module.exports = { callMysql };
