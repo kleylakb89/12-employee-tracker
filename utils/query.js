@@ -32,4 +32,27 @@ const addRole = [
     }
 ]
 
-module.exports = {opening, addDept, addRole};
+const addEmployee = [
+    {
+        type: 'input',
+        name: 'first',
+        message: 'What is the employee\'s first name?'
+    },
+    {
+        type: 'input',
+        name: 'last',
+        message: 'What is the employee\'s last name?'
+    },
+    {
+        type: 'input',
+        name: 'roleId',
+        message: 'What is the employee\'s role id?'
+    },
+    {
+        type: 'input',
+        name: 'managerId',
+        message: 'What is the employee\'s manager id?'
+    }
+];
+
+module.exports = {opening, addDept, addRole, addEmployee};

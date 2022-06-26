@@ -2,7 +2,7 @@ const art = require('ascii-art');
 // const inquirer = require('inquirer');
 // const mysql = require('mysql2');
 const {callMysql} = require('./utils/helpers.js');
-const {opening, addQuestions} = require('./utils/query.js');
+const {opening} = require('./utils/query.js');
 // require('console.table');
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application

@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, addRole } = require('./query.js');
+const { opening, addDept, addRole, addEmployee } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -44,6 +44,14 @@ const dbQueryAddRole = (table, title, salary, deptId) => {
     })
 };
 
+const dbQueryAddEmployee = (table, first, last, roleId, managerId) => {
+    db.query('INSERT INTO ?? SET first_name = ?, last_name = ?, role_id = ?, manager_id = ?', [table, first, last, roleId, managerId], (err, results) => {
+        if (err) console.log(err);
+        console.table(results)
+        return callMysql(opening);
+    })
+};
+
 const conditionals = async (answers) => {
     if (answers === 'exit') return(process.exit());
     if (answers === 'view all departments') {
@@ -62,6 +70,10 @@ const conditionals = async (answers) => {
     else if (answers === 'add a role') {
         const table = await askRoleQuestions(addRole);
         return(dbQueryAddRole('role', table.title, table.salary, table.deptId));
+    }
+    else if (answers === 'add an employee') {
+        const table = await askRoleQuestions(addEmployee);
+        return(dbQueryAddEmployee('employee', table.first, table.last, table.roleId, table.managerId));
     }
     // else process.exit();
     else console.log('not working');
