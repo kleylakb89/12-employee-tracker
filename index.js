@@ -1,4 +1,7 @@
 const art = require('ascii-art');
+const inquirer = require('inquirer');
+const mysql = require('mysql2');
+require('console.table');
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application
 // THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
@@ -38,13 +41,25 @@ const questions = [
 // write db update functions
 // tackle bonus elements
 
+const banner = () => {
+    art.font('Employee Tracker', 'doom', (err, rendered) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(rendered);
+            askQuestions(questions);
+        }
+    })
+};
 
+const askQuestions = (questions) => {
+    inquirer.prompt(questions).then(answers => {
+        console.log(answers);
+    })
+};
 
 const init = () => {
-    art.font('Employee Tracker', 'doom', (err, rendered) => {
-        if (err) console.log(err);
-        else console.log(rendered);
-    })
+    banner();
 };
 
 init();
