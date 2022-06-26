@@ -8,7 +8,6 @@ const askQuestions = async (quest) => {
     return callMysql(answers.choice);
 };
 
-
 const db = mysql.createConnection(
     {
         user: 'root',
@@ -16,19 +15,29 @@ const db = mysql.createConnection(
     }
 );
 
+const dbQuery = (table) => {
+    db.query('SELECT * FROM ??', table, (err, results) => {
+        if (err) reject(console.log(err));
+        console.table(results)
+        return askQuestions(questions);
+    })
+};
+
 const callMysql = (answers) => {
     const query = new Promise((resolve, reject) => {
         console.log(answers);
         if (answers === 'exit') resolve(process.exit());
         if (answers === 'view all departments') {
-            db.query('SELECT * FROM department', (err, results) => {
-                if (err) reject(console.log(err));
-                console.table(results)
-                return resolve(askQuestions(questions));
-            })
+            resolve(dbQuery('department'));
+        };
+        if (answers === 'view all roles') {
+            resolve(dbQuery('role'));
+        };
+        if (answers === 'view all employees') {
+            resolve(dbQuery('employee'));
         }
         else reject('No choice made.');
     });
-}
+};
 
 module.exports = { askQuestions };
