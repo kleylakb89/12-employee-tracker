@@ -1,18 +1,13 @@
 const art = require('ascii-art');
-const inquirer = require('inquirer');
-const mysql = require('mysql2');
-require('console.table');
+// const inquirer = require('inquirer');
+// const mysql = require('mysql2');
+const {askQuestions} = require('./utils/helpers.js');
+const {questions} = require('./utils/query.js');
+// require('console.table');
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application
 // THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-const questions = [
-    {
-        type: 'list',
-        name: 'choice',
-        message: 'What would you like to do?',
-        choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role']
-    }
-]
+
 // WHEN I choose to view all departments
 // THEN I am presented with a formatted table showing department names and department ids
 // WHEN I choose to view all roles
@@ -49,12 +44,6 @@ const banner = () => {
             console.log(rendered);
             askQuestions(questions);
         }
-    })
-};
-
-const askQuestions = (questions) => {
-    inquirer.prompt(questions).then(answers => {
-        console.log(answers);
     })
 };
 
