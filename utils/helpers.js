@@ -1,12 +1,17 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { questions } = require('./query.js');
+const { opening, addQuestions } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
     const answers = await prompt(quest);
-    return callMysql(answers.choice);
+    return(answers.choice);
 };
+
+// const askTableQuestions = async (quest) => {
+//     const answers = await prompt(quest);
+//     return answers.table;
+// };
 
 const db = mysql.createConnection(
     {
@@ -19,25 +24,47 @@ const dbQuery = (table) => {
     db.query('SELECT * FROM ??', table, (err, results) => {
         if (err) reject(console.log(err));
         console.table(results)
-        return askQuestions(questions);
+        return callMysql(opening);
     })
 };
 
-const callMysql = (answers) => {
-    const query = new Promise((resolve, reject) => {
-        console.log(answers);
-        if (answers === 'exit') resolve(process.exit());
-        if (answers === 'view all departments') {
-            resolve(dbQuery('department'));
-        };
-        if (answers === 'view all roles') {
-            resolve(dbQuery('role'));
-        };
-        if (answers === 'view all employees') {
-            resolve(dbQuery('employee'));
-        }
-        else reject('No choice made.');
-    });
+const dbQueryAdd = (table, name) => {
+    db.query('INSERT INTO ?? SET name = ?', [table, name], (err, results) => {
+        if (err) reject(console.log(err));
+        console.table(results)
+        return callMysql(opening);
+    })
 };
 
-module.exports = { askQuestions };
+const conditionals = (answers) => {
+    if (answers === 'exit') return(process.exit());
+    if (answers === 'view all departments') {
+        return(dbQuery('department'));
+    }
+    else if (answers === 'view all roles') {
+        return(dbQuery('role'));
+    }
+    else if (answers === 'view all employees') {
+        return(dbQuery('employee'));
+    }
+    else if (answers === 'add a department') {
+        const table = askQuestions(addQuestions);
+        console.log(table);
+        // resolve(dbQueryAdd('department', table));
+    }
+    // else process.exit();
+    else console.log('not working');
+};
+
+const callMysql = async (quest) => {
+    const answers = await askQuestions(quest);
+    // const query = new Promise((resolve, reject) => {
+    //     if(answers)resolve(conditionals(answers));
+    //     else console.log('not yet');
+    // });
+    // query.then(conditionals(answers)).catch(err=>console.log(err));
+    const query = conditionals(answers);
+    console.log(query);
+};
+
+module.exports = { callMysql };
