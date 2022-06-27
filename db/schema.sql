@@ -21,6 +21,7 @@ CREATE TABLE manager (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     department_id INT,
+    salary DECIMAL NOT NULL,
     FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL
 );
 

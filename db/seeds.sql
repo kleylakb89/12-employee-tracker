@@ -10,11 +10,11 @@ VALUES  ('Potions Student', 10.00, 1),
         ('DADA Student', 10.00, 3),
         ('Divination Student', 10.00, 4);
 
-INSERT INTO manager (first_name, last_name, department_id)
-VALUES  ('Severus', 'Snape', 1),
-        ('Minerva', 'McGonagall', 2),
-        ('Remus', 'Lupin', 3),
-        ('Sybill', 'Trelawney', 4);
+INSERT INTO manager (first_name, last_name, department_id, salary)
+VALUES  ('Severus', 'Snape', 1, 100.00),
+        ('Minerva', 'McGonagall', 2, 100.00),
+        ('Remus', 'Lupin', 3, 100.00),
+        ('Sybill', 'Trelawney', 4, 100.00);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES  ('Harry', 'Potter', 3, 3),

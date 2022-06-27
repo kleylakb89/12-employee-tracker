@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole, getManagers } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -60,6 +60,14 @@ const dbQueryUpdateEmployee = (table, roleId, managerId, first) => {
     })
 };
 
+const dbQueryAddManager = (table, first, last, deptId, salary) => {
+    db.query('INSERT INTO ?? SET first_name = ?, last_name = ?, department_id = ?, salary = salary', [table, first, last, deptId, salary], (err, results) => {
+        if (err) console.log(err);
+        console.log('Added to database')
+        return callMysql(opening);
+    })
+}
+
 const conditionals = async (answers) => {
     const mysql = require('mysql2/promise');
     const db = await mysql.createConnection(
@@ -77,8 +85,12 @@ const conditionals = async (answers) => {
         const string = 'SELECT role.id, title, name AS department, salary FROM role JOIN department ON role.department_id = department.id';
         return(dbQuery(string));
     }
+    else if (answers === 'view all managers') {
+        const string = 'SELECT manager.id, first_name, last_name, name AS department, salary FROM manager JOIN department ON manager.department_id = department.id';
+        return(dbQuery(string));
+    }
     else if (answers === 'view all employees') {
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, salary, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, role.salary, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id';
         return(dbQuery(string));
     }
     else if (answers === 'add a department') {
@@ -120,18 +132,13 @@ const conditionals = async (answers) => {
         };
         return(dbQueryUpdateEmployee('employee', roleId[0][0].id, managerId[0][0].id, empFirst));
     }
-    // else if (answers === 'add manager') {
-    //     const manQuest = await getEmployees();
-    //     const table = await askRoleQuestions(empQuest);
-    //     const roleId = await db.query('SELECT id FROM role WHERE title = ?', table.role);
-    //     let first = '';
-    //     for (let letter of table.manager) {
-    //         if (letter === ' ') break;
-    //         first += letter;
-    //     };
-    //     const managerId = await db.query('SELECT id FROM manager WHERE first_name = ?', first);
-    //     return(dbQueryAddEmployee('employee', table.first, table.last, roleId[0][0].id, managerId[0][0].id));
-    // }
+    else if (answers === 'add manager') {
+        const manQuest = await getManagers();
+        const table = await askRoleQuestions(manQuest);
+        const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.role);
+        console.log(typeof(parseFloat(table.salary)));
+        // return(dbQueryAddManager('manager', table.first, table.last, deptId[0][0].id, table.salary));
+    }
     // else process.exit();
     else console.log('not working');
 };

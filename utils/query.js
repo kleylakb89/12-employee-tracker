@@ -6,7 +6,7 @@ const opening =
     type: 'list',
     name: 'choice',
     message: 'What would you like to do?',
-    choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'exit']
+    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'exit']
 };
 
 const addDept = [
@@ -160,6 +160,11 @@ const getManagers = async () => {
             name: 'role',
             message: 'What is the manager\'s department?',
             choices: []
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the manager\'s salary?'
         }
     ];
     const role = await db.query('SELECT name FROM department');
@@ -169,4 +174,4 @@ const getManagers = async () => {
     return (addManager);
 };
 
-module.exports = { opening, addDept, getRoles, getEmployees, updateRole, addManagers };
+module.exports = { opening, addDept, getRoles, getEmployees, updateRole, getManagers };
