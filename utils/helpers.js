@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -170,6 +170,12 @@ const conditionals = async (answers) => {
         const table = await askRoleQuestions(viewMan);
         const string = 'SELECT employee.id, employee.first_name, employee.last_name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN manager ON employee.manager_id = manager.id WHERE CONCAT(manager.first_name," ",manager.last_name) = ?';
         return(dbQueryViewByMan(string, table.manager));
+    }
+    else if (answers === 'view employees by department') {
+        const viewDept = await viewByDept();
+        const table = await askRoleQuestions(viewDept);
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id WHERE department.name = ?';
+        return(dbQueryViewByMan(string, table.department));
     }
     // else process.exit();
     else console.log('not working');
