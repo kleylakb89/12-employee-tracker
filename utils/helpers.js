@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -52,6 +52,14 @@ const dbQueryAddEmployee = (table, first, last, roleId, managerId) => {
     })
 };
 
+const dbQueryUpdateEmployee = (table, roleId, managerId, first) => {
+    db.query('UPDATE ?? SET role_id = ?, manager_id = ? WHERE first_name = ?', [table, roleId, managerId, first], (err, results) => {
+        if (err) console.log(err);
+        console.log('Added to database')
+        return callMysql(opening);
+    })
+};
+
 const conditionals = async (answers) => {
     const mysql = require('mysql2/promise');
     const db = await mysql.createConnection(
@@ -96,8 +104,21 @@ const conditionals = async (answers) => {
         return(dbQueryAddEmployee('employee', table.first, table.last, roleId[0][0].id, managerId[0][0].id));
     }
     else if (answers === 'update an employee role') {
-        const table = await askRoleQuestions(addEmployee);
-        return(dbQueryAddEmployee('employee', table.first, table.last, table.roleId, table.managerId));
+        const upRole = await updateRole();
+        const table = await askRoleQuestions(upRole);
+        const roleId = await db.query('SELECT id FROM role WHERE title = ?', table.role);
+        let first = '';
+        for (let letter of table.manager) {
+            if (letter === ' ') break;
+            first += letter;
+        };
+        const managerId = await db.query('SELECT id FROM manager WHERE first_name = ?', first);
+        let empFirst = '';
+        for (let letter of table.employee) {
+            if (letter === ' ') break;
+            empFirst += letter;
+        };
+        return(dbQueryUpdateEmployee('employee', roleId[0][0].id, managerId[0][0].id, empFirst));
     }
     // else process.exit();
     else console.log('not working');

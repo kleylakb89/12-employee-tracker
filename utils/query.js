@@ -103,14 +103,20 @@ const updateRole = async () => {
     const updateEmployee = [
         {
             type: 'list',
-            name: 'role',
+            name: 'employee',
             message: 'Which employee would you like to update?',
             choices: []
         },
         {
             type: 'list',
-            name: 'manager',
+            name: 'role',
             message: 'What role would you like to assign?',
+            choices: []
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is their new manager?',
             choices: []
         }
     ];
@@ -123,9 +129,12 @@ const updateRole = async () => {
     for (let item of role[0]) {
         updateEmployee[1].choices.push(item.title);
     }
-    console.log(updateEmployee);
+    const manager = await db.query('SELECT first_name, last_name FROM manager');
+    for (let item of manager[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        updateEmployee[2].choices.push(name);
+    }
     return (updateEmployee);
 };
-
 
 module.exports = { opening, addDept, getRoles, getEmployees, updateRole };
