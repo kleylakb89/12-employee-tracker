@@ -1,21 +1,14 @@
-const mysql = require('mysql2');
-
-const db = mysql.createConnection(
-    {
-        user: 'root',
-        database: 'business_db'
-    }
-);
+const mysql = require('mysql2/promise');
 
 const opening =
-    {
-        type: 'list',
-        name: 'choice',
-        message: 'What would you like to do?',
-        choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'exit']
-    };
+{
+    type: 'list',
+    name: 'choice',
+    message: 'What would you like to do?',
+    choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'exit']
+};
 
-const addDept = [ 
+const addDept = [
     {
         type: 'input',
         name: 'choice',
@@ -23,7 +16,13 @@ const addDept = [
     }
 ];
 
-const getRoles = () => {
+const getRoles = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
     const addRole = [
         {
             type: 'input',
@@ -39,30 +38,25 @@ const getRoles = () => {
             type: 'list',
             name: 'deptId',
             message: 'What is the role\'s department?',
-            choices: db.query('SELECT name FROM department', (err, results) => {
-                const arr = [];
-                if (err) console.log(err);
-                for (let item of results) {
-                    arr.push(item.name);
-                }
-                return (arr);
-            })
+            choices: []
         }
     ];
 
-    // db.query('SELECT name FROM department', (err, results) => {
-    //     if (err) console.log(err);
-    //     for (let item of results) {
-    //         addRole[2].choices.push(item.name);
-    //     }
-    //     return (addRole);
-    // });
-    console.log(addRole);
-    return(addRole);
+    const test = await db.query('SELECT name FROM department');
+    for (let item of test[0]) {
+        addRole[2].choices.push(item.name);
+    }
+    // console.log(test);
+    // console.log(addRole);
+    return (addRole);
 };
 
-const test = getRoles();
-// console.log(test);
+const check = async () => {
+    const test = await getRoles();
+    console.log(test);
+}
+
+check();
 
 
 const addEmployee = [
@@ -88,4 +82,4 @@ const addEmployee = [
     }
 ];
 
-module.exports = {opening, addDept, getRoles, addEmployee};
+module.exports = { opening, addDept, getRoles, addEmployee };
