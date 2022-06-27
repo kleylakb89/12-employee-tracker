@@ -36,7 +36,7 @@ const getRoles = async () => {
         },
         {
             type: 'list',
-            name: 'deptId',
+            name: 'dept',
             message: 'What is the role\'s department?',
             choices: []
         }
@@ -46,40 +46,41 @@ const getRoles = async () => {
     for (let item of test[0]) {
         addRole[2].choices.push(item.name);
     }
-    // console.log(test);
-    // console.log(addRole);
     return (addRole);
 };
 
-const check = async () => {
-    const test = await getRoles();
-    console.log(test);
+const getEmployees = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const addEmployee = [
+        {
+            type: 'input',
+            name: 'first',
+            message: 'What is the employee\'s first name?'
+        },
+        {
+            type: 'input',
+            name: 'last',
+            message: 'What is the employee\'s last name?'
+        },
+        {
+            type: 'list',
+            name: 'role',
+            message: 'What is the employee\'s role?',
+            choices: []
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is the employee\'s manager?',
+            choices: []
+        }
+    ];
+
 }
-
-check();
-
-
-const addEmployee = [
-    {
-        type: 'input',
-        name: 'first',
-        message: 'What is the employee\'s first name?'
-    },
-    {
-        type: 'input',
-        name: 'last',
-        message: 'What is the employee\'s last name?'
-    },
-    {
-        type: 'input',
-        name: 'roleId',
-        message: 'What is the employee\'s role id?'
-    },
-    {
-        type: 'input',
-        name: 'managerId',
-        message: 'What is the employee\'s manager id?'
-    }
-];
 
 module.exports = { opening, addDept, getRoles, addEmployee };

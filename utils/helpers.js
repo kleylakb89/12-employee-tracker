@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, addRole, addEmployee } = require('./query.js');
+const { opening, addDept, getRoles, addEmployee } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -53,6 +53,13 @@ const dbQueryAddEmployee = (table, first, last, roleId, managerId) => {
 };
 
 const conditionals = async (answers) => {
+    const mysql = require('mysql2/promise');
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
     if (answers === 'exit') return(process.exit());
     if (answers === 'view all departments') {
         return(dbQuery('department'));
@@ -68,8 +75,10 @@ const conditionals = async (answers) => {
         return(dbQueryAdd('department', table));
     }
     else if (answers === 'add a role') {
-        const table = await askRoleQuestions(addRole);
-        return(dbQueryAddRole('role', table.title, table.salary, table.deptId));
+        const roleQuest = await getRoles();
+        const table = await askRoleQuestions(roleQuest);
+        const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.dept)
+        return(dbQueryAddRole('role', table.title, table.salary, deptId[0][0].id));
     }
     else if (answers === 'add an employee') {
         const table = await askRoleQuestions(addEmployee);
