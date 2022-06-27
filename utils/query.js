@@ -1,3 +1,4 @@
+const { up } = require('inquirer/lib/utils/readline');
 const mysql = require('mysql2/promise');
 
 const opening =
@@ -88,13 +89,43 @@ const getEmployees = async () => {
     for (let item of manager[0]) {
         let name = item.first_name + ' ' + item.last_name;
         addEmployee[3].choices.push(name);
-        console.log(name);
     }
-    console.log(addEmployee);
     return (addEmployee);
+};
 
-}
+const updateRole = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const updateEmployee = [
+        {
+            type: 'list',
+            name: 'role',
+            message: 'Which employee would you like to update?',
+            choices: []
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'What role would you like to assign?',
+            choices: []
+        }
+    ];
+    const employee = await db.query('SELECT first_name, last_name FROM employee');
+    for (let item of employee[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        updateEmployee[0].choices.push(name);
+    }
+    const role = await db.query('SELECT title FROM role');
+    for (let item of role[0]) {
+        updateEmployee[1].choices.push(item.title);
+    }
+    console.log(updateEmployee);
+    return (updateEmployee);
+};
 
-getEmployees();
 
-module.exports = { opening, addDept, getRoles, getEmployees };
+module.exports = { opening, addDept, getRoles, getEmployees, updateRole };
