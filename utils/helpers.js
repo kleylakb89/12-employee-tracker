@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateEmp, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget, delDept, updateRole, delRole } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -79,7 +79,15 @@ const dbQueryUpdateManager = (table, deptId, salary, first) => {
 const dbQueryViewByMan = (string, value) => {
     db.query(string, value, (err, results) => {
         if (err) return(console.log(err));
-        console.table(results)
+        console.table(results);
+        return callMysql(opening);
+    })
+};
+
+const dbQueryUpdateRole = (table, salary, deptId, title) => {
+    db.query('UPDATE ?? SET salary = ?, department_id = ? WHERE title = ?', [table, salary, deptId, title], (err, results) => {
+        if (err) console.log(err);
+        console.log('Added to database')
         return callMysql(opening);
     })
 };
@@ -98,15 +106,15 @@ const conditionals = async (answers) => {
         return(dbQuery(string));
     }
     else if (answers === 'view all roles') {
-        const string = 'SELECT role.id, title, name AS department, salary FROM role JOIN department ON role.department_id = department.id';
+        const string = 'SELECT role.id, title, name AS department, salary FROM role LEFT JOIN department ON role.department_id = department.id';
         return(dbQuery(string));
     }
     else if (answers === 'view all managers') {
-        const string = 'SELECT manager.id, first_name, last_name, name AS department, salary FROM manager JOIN department ON manager.department_id = department.id';
+        const string = 'SELECT manager.id, first_name, last_name, name AS department, salary FROM manager LEFT JOIN department ON manager.department_id = department.id';
         return(dbQuery(string));
     }
     else if (answers === 'view all employees') {
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, role.salary, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, role.salary, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN manager ON department.id = manager.department_id';
         return(dbQuery(string));
     }
     else if (answers === 'add a department') {
@@ -131,8 +139,8 @@ const conditionals = async (answers) => {
         const managerId = await db.query('SELECT id FROM manager WHERE first_name = ?', first);
         return(dbQueryAddEmployee('employee', table.first, table.last, roleId[0][0].id, managerId[0][0].id));
     }
-    else if (answers === 'update an employee role') {
-        const upRole = await updateRole();
+    else if (answers === 'update an employee') {
+        const upRole = await updateEmp();
         const table = await askRoleQuestions(upRole);
         const roleId = await db.query('SELECT id FROM role WHERE title = ?', table.role);
         let first = '';
@@ -168,24 +176,42 @@ const conditionals = async (answers) => {
     else if (answers === 'view employees by manager') {
         const viewMan = await viewByMan();
         const table = await askRoleQuestions(viewMan);
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN manager ON employee.manager_id = manager.id WHERE CONCAT(manager.first_name," ",manager.last_name) = ?';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee LEFT JOIN manager ON employee.manager_id = manager.id WHERE CONCAT(manager.first_name," ",manager.last_name) = ?';
         return(dbQueryViewByMan(string, table.manager));
     }
     else if (answers === 'view employees by department') {
         const viewDept = await viewByDept();
         const table = await askRoleQuestions(viewDept);
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id WHERE department.name = ?';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN manager ON department.id = manager.department_id WHERE department.name = ?';
         return(dbQueryViewByMan(string, table.department));
     }
     else if (answers === 'view department budget') {
         const viewBudge = await viewDeptBudget();
         const table = await askRoleQuestions(viewBudge);
         const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.department);
-        const empSum = await db.query('SELECT SUM(salary) FROM employee JOIN role ON employee.role_id = role.id WHERE department_id = ?', deptId[0][0].id);
+        const empSum = await db.query('SELECT SUM(salary) FROM employee LEFT JOIN role ON employee.role_id = role.id WHERE department_id = ?', deptId[0][0].id);
         const manSum = await db.query('SELECT SUM(salary) FROM manager WHERE department_id = ?', deptId[0][0].id);
         const totalSum = parseFloat(empSum[0][0]['SUM(salary)']) + parseFloat(manSum[0][0]['SUM(salary)']);
         console.log('Department: '+ table.department + ' Budget: $' + totalSum);
         return callMysql(opening);
+    }
+    else if (answers === 'delete a department') {
+        const del = await delDept();
+        const table = await askRoleQuestions(del);
+        const string = 'DELETE FROM department WHERE name = ?';
+        return(dbQueryViewByMan(string, table.department));
+    }
+    else if (answers === 'update a roll') {
+        const upRole = await updateRole();
+        const table = await askRoleQuestions(upRole);
+        const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.department);
+        return(dbQueryUpdateRole('role', table.salary, deptId[0][0].id, table.department));
+    }
+    else if (answers === 'delete a roll') {
+        const del = await delRole();
+        const table = await askRoleQuestions(del);
+        const string = 'DELETE FROM role WHERE title = ?';
+        return(dbQueryViewByMan(string, table.role));
     }
     // else process.exit();
     else console.log('not working');
