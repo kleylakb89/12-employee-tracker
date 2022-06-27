@@ -6,7 +6,7 @@ const opening =
     type: 'list',
     name: 'choice',
     message: 'What would you like to do?',
-    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'exit']
+    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'update manager', 'exit']
 };
 
 const addDept = [
@@ -174,4 +174,42 @@ const getManagers = async () => {
     return (addManager);
 };
 
-module.exports = { opening, addDept, getRoles, getEmployees, updateRole, getManagers };
+const updateManager = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const upMan = [
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Which manager would you like to update?',
+            choices: []
+        },
+        {
+            type: 'list',
+            name: 'dept',
+            message: 'What department would you like to assign?',
+            choices: []
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is their new salary?'
+        }
+    ];
+    const manager = await db.query('SELECT first_name, last_name FROM manager');
+    for (let item of manager[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        upMan[0].choices.push(name);
+    }
+    const depart = await db.query('SELECT name FROM department');
+    for (let item of depart[0]) {
+        upMan[1].choices.push(item.name);
+    }
+    return (upMan);
+};
+
+module.exports = { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager };

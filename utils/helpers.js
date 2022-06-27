@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole, getManagers } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -61,12 +61,20 @@ const dbQueryUpdateEmployee = (table, roleId, managerId, first) => {
 };
 
 const dbQueryAddManager = (table, first, last, deptId, salary) => {
-    db.query('INSERT INTO ?? SET first_name = ?, last_name = ?, department_id = ?, salary = salary', [table, first, last, deptId, salary], (err, results) => {
+    db.query('INSERT INTO ?? SET first_name = ?, last_name = ?, department_id = ?, salary = ?', [table, first, last, deptId, salary], (err, results) => {
         if (err) console.log(err);
         console.log('Added to database')
         return callMysql(opening);
     })
-}
+};
+
+const dbQueryUpdateManager = (table, deptId, salary, first) => {
+    db.query('UPDATE ?? SET department_id = ?, salary = ? WHERE first_name = ?', [table, deptId, salary, first], (err, results) => {
+        if (err) console.log(err);
+        console.log('Added to database')
+        return callMysql(opening);
+    })
+};
 
 const conditionals = async (answers) => {
     const mysql = require('mysql2/promise');
@@ -136,8 +144,18 @@ const conditionals = async (answers) => {
         const manQuest = await getManagers();
         const table = await askRoleQuestions(manQuest);
         const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.role);
-        console.log(typeof(parseFloat(table.salary)));
-        // return(dbQueryAddManager('manager', table.first, table.last, deptId[0][0].id, table.salary));
+        return(dbQueryAddManager('manager', table.first, table.last, deptId[0][0].id, table.salary));
+    }
+    else if (answers === 'update manager') {
+        const upMan = await updateManager();
+        const table = await askRoleQuestions(upMan);
+        const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.dept);
+        let first = '';
+        for (let letter of table.manager) {
+            if (letter === ' ') break;
+            first += letter;
+        };
+        return(dbQueryUpdateManager('manager', deptId[0][0].id, table.salary, first));
     }
     // else process.exit();
     else console.log('not working');
