@@ -42,8 +42,8 @@ const getRoles = async () => {
         }
     ];
 
-    const test = await db.query('SELECT name FROM department');
-    for (let item of test[0]) {
+    const names = await db.query('SELECT name FROM department');
+    for (let item of names[0]) {
         addRole[2].choices.push(item.name);
     }
     return (addRole);
@@ -80,7 +80,21 @@ const getEmployees = async () => {
             choices: []
         }
     ];
+    const role = await db.query('SELECT title FROM role');
+    for (let item of role[0]) {
+        addEmployee[2].choices.push(item.title);
+    }
+    const manager = await db.query('SELECT first_name, last_name FROM manager');
+    for (let item of manager[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        addEmployee[3].choices.push(name);
+        console.log(name);
+    }
+    console.log(addEmployee);
+    return (addEmployee);
 
 }
 
-module.exports = { opening, addDept, getRoles, addEmployee };
+getEmployees();
+
+module.exports = { opening, addDept, getRoles, getEmployees };
