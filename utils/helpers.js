@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -72,6 +72,14 @@ const dbQueryUpdateManager = (table, deptId, salary, first) => {
     db.query('UPDATE ?? SET department_id = ?, salary = ? WHERE first_name = ?', [table, deptId, salary, first], (err, results) => {
         if (err) console.log(err);
         console.log('Added to database')
+        return callMysql(opening);
+    })
+};
+
+const dbQueryViewByMan = (string, value) => {
+    db.query(string, value, (err, results) => {
+        if (err) return(console.log(err));
+        console.table(results)
         return callMysql(opening);
     })
 };
@@ -156,6 +164,12 @@ const conditionals = async (answers) => {
             first += letter;
         };
         return(dbQueryUpdateManager('manager', deptId[0][0].id, table.salary, first));
+    }
+    else if (answers === 'view employees by manager') {
+        const viewMan = await viewByMan();
+        const table = await askRoleQuestions(viewMan);
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN manager ON employee.manager_id = manager.id WHERE CONCAT(manager.first_name," ",manager.last_name) = ?';
+        return(dbQueryViewByMan(string, table.manager));
     }
     // else process.exit();
     else console.log('not working');
