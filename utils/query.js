@@ -6,7 +6,7 @@ const opening =
     type: 'list',
     name: 'choice',
     message: 'What would you like to do?',
-    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'view employees by manager', 'view employees by department', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'update manager', 'exit']
+    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'view employees by manager', 'view employees by department', 'view department budget', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'add manager', 'update manager', 'exit']
 };
 
 const addDept = [
@@ -257,4 +257,26 @@ const viewByDept = async () => {
     return (viewDept);
 };
 
-module.exports = { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept };
+const viewDeptBudget = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const deptBudget = [
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Which department\'s budget would you like to view?',
+            choices: []
+        }
+    ];
+    const dept = await db.query('SELECT name FROM department');
+    for (let item of dept[0]) {
+        deptBudget[0].choices.push(item.name);
+    }
+    return (deptBudget);
+};
+
+module.exports = { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget };

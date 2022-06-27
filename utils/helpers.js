@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateRole, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -174,8 +174,18 @@ const conditionals = async (answers) => {
     else if (answers === 'view employees by department') {
         const viewDept = await viewByDept();
         const table = await askRoleQuestions(viewDept);
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, name, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id WHERE department.name = ?';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id WHERE department.name = ?';
         return(dbQueryViewByMan(string, table.department));
+    }
+    else if (answers === 'view department budget') {
+        const viewBudge = await viewDeptBudget();
+        const table = await askRoleQuestions(viewBudge);
+        const deptId = await db.query('SELECT id FROM department WHERE name = ?', table.department);
+        const empSum = await db.query('SELECT SUM(salary) FROM employee JOIN role ON employee.role_id = role.id WHERE department_id = ?', deptId[0][0].id);
+        const manSum = await db.query('SELECT SUM(salary) FROM manager WHERE department_id = ?', deptId[0][0].id);
+        const totalSum = parseFloat(empSum[0][0]['SUM(salary)']) + parseFloat(manSum[0][0]['SUM(salary)']);
+        console.log('Department: '+ table.department + ' Budget: $' + totalSum);
+        return callMysql(opening);
     }
     // else process.exit();
     else console.log('not working');
