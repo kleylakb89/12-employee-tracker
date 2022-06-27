@@ -84,6 +84,14 @@ const dbQueryViewByMan = (string, value) => {
     })
 };
 
+const dbQueryDelete = (string, value) => {
+    db.query(string, value, (err, results) => {
+        if (err) return(console.log(err));
+        console.log('Deleted!');
+        return callMysql(opening);
+    })
+};
+
 const dbQueryUpdateRole = (table, salary, deptId, title) => {
     db.query('UPDATE ?? SET salary = ?, department_id = ? WHERE title = ?', [table, salary, deptId, title], (err, results) => {
         if (err) console.log(err);
@@ -199,7 +207,7 @@ const conditionals = async (answers) => {
         const del = await delDept();
         const table = await askRoleQuestions(del);
         const string = 'DELETE FROM department WHERE name = ?';
-        return(dbQueryViewByMan(string, table.department));
+        return(dbQueryDelete(string, table.department));
     }
     else if (answers === 'update a roll') {
         const upRole = await updateRole();
@@ -211,7 +219,7 @@ const conditionals = async (answers) => {
         const del = await delRole();
         const table = await askRoleQuestions(del);
         const string = 'DELETE FROM role WHERE title = ?';
-        return(dbQueryViewByMan(string, table.role));
+        return(dbQueryDelete(string, table.role));
     }
     else if (answers === 'delete an employee') {
         const del = await delEmp();
@@ -222,7 +230,7 @@ const conditionals = async (answers) => {
             first += letter;
         };
         const string = 'DELETE FROM employee WHERE first_name = ?';
-        return(dbQueryViewByMan(string, first));
+        return(dbQueryDelete(string, first));
     }
     else if (answers === 'delete a manager') {
         const del = await delMan();
@@ -233,19 +241,13 @@ const conditionals = async (answers) => {
             first += letter;
         };
         const string = 'DELETE FROM manager WHERE first_name = ?';
-        return(dbQueryViewByMan(string, first));
+        return(dbQueryDelete(string, first));
     }
-    // else process.exit();
-    else console.log('not working');
+    else process.exit();
 };
 
 const callMysql = async (quest) => {
     const answers = await askQuestions(quest);
-    // const query = new Promise((resolve, reject) => {
-    //     if(answers)resolve(conditionals(answers));
-    //     else console.log('not yet');
-    // });
-    // query.then(conditionals(answers)).catch(err=>console.log(err));
     const query = await conditionals(answers);
 };
 
