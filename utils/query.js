@@ -6,7 +6,7 @@ const opening =
     type: 'list',
     name: 'choice',
     message: 'What would you like to do?',
-    choices: ['view all departments', 'view all roles', 'view all managers', 'view all employees', 'view employees by manager', 'view employees by department', 'view department budget', 'add a department', 'delete a department', 'add a role', 'update a roll', 'delete a roll', 'add an employee', 'update an employee', 'add manager', 'update manager', 'exit']
+    choices: ['view all departments', 'view all managers', 'view all roles', 'view all employees', 'view employees by manager', 'view employees by department', 'view department budget', 'add a department', 'delete a department', 'add manager', 'update manager', 'delete a manager', 'add a role', 'update a roll', 'delete a roll', 'add an employee', 'update an employee', 'delete an employee',  'exit']
 };
 
 const addDept = [
@@ -360,4 +360,50 @@ const delRole = async () => {
     return (del);
 };
 
-module.exports = { opening, addDept, getRoles, getEmployees, updateEmp, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget, delDept, updateRole, delRole };
+const delEmp = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const del = [
+        {
+            type: 'list',
+            name: 'employee',
+            message: 'Which employee would you like to delete?',
+            choices: []
+        }
+    ];
+    const employee = await db.query('SELECT first_name, last_name FROM employee');
+    for (let item of employee[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        del[0].choices.push(name);
+    }
+    return (del);
+};
+
+const delMan = async () => {
+    const db = await mysql.createConnection(
+        {
+            user: 'root',
+            database: 'business_db'
+        }
+    );
+    const del = [
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Which manager would you like to delete?',
+            choices: []
+        }
+    ];
+    const manager = await db.query('SELECT first_name, last_name FROM manager');
+    for (let item of manager[0]) {
+        let name = item.first_name + ' ' + item.last_name;
+        del[0].choices.push(name);
+    }
+    return (del);
+};
+
+module.exports = { opening, addDept, getRoles, getEmployees, updateEmp, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget, delDept, updateRole, delRole, delEmp, delMan };

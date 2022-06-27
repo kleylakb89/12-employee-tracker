@@ -1,6 +1,6 @@
 const { prompt } = require('inquirer');
 const mysql = require('mysql2');
-const { opening, addDept, getRoles, getEmployees, updateEmp, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget, delDept, updateRole, delRole } = require('./query.js');
+const { opening, addDept, getRoles, getEmployees, updateEmp, getManagers, updateManager, viewByMan, viewByDept, viewDeptBudget, delDept, updateRole, delRole, delEmp, delMan } = require('./query.js');
 require('console.table');
 
 const askQuestions = async (quest) => {
@@ -212,6 +212,28 @@ const conditionals = async (answers) => {
         const table = await askRoleQuestions(del);
         const string = 'DELETE FROM role WHERE title = ?';
         return(dbQueryViewByMan(string, table.role));
+    }
+    else if (answers === 'delete an employee') {
+        const del = await delEmp();
+        const table = await askRoleQuestions(del);
+        let first = '';
+        for (let letter of table.employee) {
+            if (letter === ' ') break;
+            first += letter;
+        };
+        const string = 'DELETE FROM employee WHERE first_name = ?';
+        return(dbQueryViewByMan(string, first));
+    }
+    else if (answers === 'delete a manager') {
+        const del = await delMan();
+        const table = await askRoleQuestions(del);
+        let first = '';
+        for (let letter of table.manager) {
+            if (letter === ' ') break;
+            first += letter;
+        };
+        const string = 'DELETE FROM manager WHERE first_name = ?';
+        return(dbQueryViewByMan(string, first));
     }
     // else process.exit();
     else console.log('not working');
