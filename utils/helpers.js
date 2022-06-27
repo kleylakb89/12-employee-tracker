@@ -78,7 +78,7 @@ const conditionals = async (answers) => {
         return(dbQuery(string));
     }
     else if (answers === 'view all employees') {
-        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, salary, manager.first_name AS manager_first, manager.last_name AS manager_last FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id';
+        const string = 'SELECT employee.id, employee.first_name, employee.last_name, title, name AS department, salary, CONCAT(manager.first_name," ",manager.last_name) AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id JOIN manager ON department.id = manager.department_id';
         return(dbQuery(string));
     }
     else if (answers === 'add a department') {
@@ -120,6 +120,18 @@ const conditionals = async (answers) => {
         };
         return(dbQueryUpdateEmployee('employee', roleId[0][0].id, managerId[0][0].id, empFirst));
     }
+    // else if (answers === 'add manager') {
+    //     const manQuest = await getEmployees();
+    //     const table = await askRoleQuestions(empQuest);
+    //     const roleId = await db.query('SELECT id FROM role WHERE title = ?', table.role);
+    //     let first = '';
+    //     for (let letter of table.manager) {
+    //         if (letter === ' ') break;
+    //         first += letter;
+    //     };
+    //     const managerId = await db.query('SELECT id FROM manager WHERE first_name = ?', first);
+    //     return(dbQueryAddEmployee('employee', table.first, table.last, roleId[0][0].id, managerId[0][0].id));
+    // }
     // else process.exit();
     else console.log('not working');
 };
