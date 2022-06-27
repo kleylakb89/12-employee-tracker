@@ -75,6 +75,10 @@ const conditionals = async (answers) => {
         const table = await askRoleQuestions(addEmployee);
         return(dbQueryAddEmployee('employee', table.first, table.last, table.roleId, table.managerId));
     }
+    else if (answers === 'update an employee role') {
+        const table = await askRoleQuestions(addEmployee);
+        return(dbQueryAddEmployee('employee', table.first, table.last, table.roleId, table.managerId));
+    }
     // else process.exit();
     else console.log('not working');
 };

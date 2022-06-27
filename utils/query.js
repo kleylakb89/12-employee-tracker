@@ -1,3 +1,12 @@
+const mysql = require('mysql2');
+
+const db = mysql.createConnection(
+    {
+        user: 'root',
+        database: 'business_db'
+    }
+);
+
 const opening =
     {
         type: 'list',
@@ -14,23 +23,47 @@ const addDept = [
     }
 ];
 
-const addRole = [
-    {
-        type: 'input',
-        name: 'title',
-        message: 'What is the role\'s title?',
-    },
-    {
-        type: 'input',
-        name: 'salary',
-        message: 'What is the role\'s salary?',
-    },
-    {
-        type: 'input',
-        name: 'deptId',
-        message: 'What is the role\'s department id?',
-    }
-]
+const getRoles = () => {
+    const addRole = [
+        {
+            type: 'input',
+            name: 'title',
+            message: 'What is the role\'s title?',
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the role\'s salary?',
+        },
+        {
+            type: 'list',
+            name: 'deptId',
+            message: 'What is the role\'s department?',
+            choices: db.query('SELECT name FROM department', (err, results) => {
+                const arr = [];
+                if (err) console.log(err);
+                for (let item of results) {
+                    arr.push(item.name);
+                }
+                return (arr);
+            })
+        }
+    ];
+
+    // db.query('SELECT name FROM department', (err, results) => {
+    //     if (err) console.log(err);
+    //     for (let item of results) {
+    //         addRole[2].choices.push(item.name);
+    //     }
+    //     return (addRole);
+    // });
+    console.log(addRole);
+    return(addRole);
+};
+
+const test = getRoles();
+// console.log(test);
+
 
 const addEmployee = [
     {
@@ -55,4 +88,4 @@ const addEmployee = [
     }
 ];
 
-module.exports = {opening, addDept, addRole, addEmployee};
+module.exports = {opening, addDept, getRoles, addEmployee};
