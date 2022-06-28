@@ -25,7 +25,7 @@ When starting the node index.js process, the user is prompted to choose a select
 
 ## Installation
 
-After cloning the repo, run mysql -u root to access the mysql shell. From there, run source db/schema.sql; followed by source db/seeds.sql;. This will create and seed the database. From there, exit the shell and run node index.js from the command line. Follow the prompts to affect the database.
+After cloning the repo, run npm install, then run mysql -u root to access the mysql shell. From there, run source db/schema.sql; followed by source db/seeds.sql;. This will create and seed the database. From there, exit the shell and run node index.js from the command line. Follow the prompts to affect the database.
 
 ## Visuals
 
