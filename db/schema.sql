@@ -1,13 +1,15 @@
+/* clears out database before creating it */
 DROP DATABASE IF EXISTS business_db;
 CREATE DATABASE business_db;
 
 USE business_db;
-
+/* creates department table with attributes */
 CREATE TABLE department (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     name VARCHAR(30) NOT NULL
 );
 
+/* creates role table with attributes */
 CREATE TABLE role (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     title VARCHAR(30),
@@ -16,6 +18,7 @@ CREATE TABLE role (
     FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL
 );
 
+/* creates manager table with attributes */
 CREATE TABLE manager (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     first_name VARCHAR(30),
@@ -25,6 +28,7 @@ CREATE TABLE manager (
     FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL
 );
 
+/* creates employee table with attributes */
 CREATE TABLE employee (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     first_name VARCHAR(30),

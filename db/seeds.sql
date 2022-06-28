@@ -1,3 +1,4 @@
+/* initial seed values for the tables */
 INSERT INTO department (name)
 VALUES  ('Potions'),
         ('Transfiguration'),
